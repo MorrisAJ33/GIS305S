@@ -54,9 +54,9 @@ class BasicMap:
 if __name__ == "__main__":
     my_map = BasicMap("-105.2705", "40.015", "0.5", "0.25")
     my_map.describe()
-"try and except allow patrial return and the function will not full crash with incorrect data."
-try:
-    print("Calculating bounds...")
-    my_map.get_bounds()
-except: TypeError
-print("Error in get_bounds - check input, values must be numbers!")
+    #try and except allow partial return and the function will not fully crash with incorrect data.
+    try:
+        print("Calculating bounds...")
+        my_map.get_bounds()
+    except TypeError:
+        print("Error in get_bounds - check input, values must be numbers!")
