@@ -1,27 +1,31 @@
 import arcpy
+import requests
+import csv
+
 from etl.SpatialEtl import SpatialEtl
 
+config_dict = None
 class GSheetsEtl(SpatialEtl):
 
-    def __init__(self, remote, local_dir, data_format, destination):
-        super().__init__(remote, local_dir, data_format, destination)
+    def __init__(self, config_dict):
+        super().__init__(self.config_dict)
 
     def extract(self):
         print("Extracting addresses from google form spreadsheet")
         # file = urllib.request.urlopen("https://docs.google.com/spreadsheets/d/e/2PACX-1vTaJ_1xRhGQAOSITkgn_C1wfPSnPX0BA37XuftlXVfVrpjfj4J3BHPu1soGeUtNt3XjLI1G_HT2Fy69/pub?output=csv")
 
         r = requests.get(
-            "https://docs.google.com/spreadsheets/d/e/2PACX-1vTaJ_1xRhGQAOSITkgn_C1wfPSnPX0BA37XuftlXVfVrpjfj4J3BHPu1soGeUtNt3XjLI1G_HT2Fy69/pub?output=csv")
+            self.config_dict.get('remote_url'))
         r.encoding = "utf-8"
         data = r.text
-        with open(r"C:\Users\morri\Downloads\addresses.csv", "w") as output_file:
+        with open(f"{self.config_dict.get('proj_dir')}addresses.csv", "w") as output_file:
             output_file.write(data)
 
     def load(self):
         # Description: Creates a point feature class from input table
 
         # Set environment settings
-        arcpy.env.workspace = r"C:\Users\morri\Documents\Alex Morris\GIS 305\arcgis\westnileoutbreak\WestNileOutbreak\WestNileOutbreak.gdb\\"
+        arcpy.env.workspace = rf"{config_dict.get('proj_dir')}WestNileOutbreak.gdb\\"
         arcpy.env.overwriteOutput = True
 
         # Set the local variables
