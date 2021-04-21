@@ -1,8 +1,8 @@
 import arcpy
 import yaml
 import logging
-from etl.SpatialEtl import SpatialEtl
 from etl.GSheetsEtl import GSheetsEtl
+
 
 def main():
     logging.info('Starting West Nile Virus Simulation')
@@ -11,24 +11,22 @@ def main():
     find_lyr= arcpy.ListFeatureClasses()
     for lyr in find_lyr:
         print(lyr)
-        if  lyr == "Lakes_Res" or lyr == "Mosquito" or lyr == "OSMP_Prop" or lyr == "Wetlands_Reg":
+        if  lyr == "Lakes_Res" or lyr == "Mosquito" or lyr == "OSMP_Prop" or lyr == "Wetlands_Reg" or lyr == 'avoid_points':
             d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb\\"
             output_layer = buffer(d_base, lyr)
             print(output_layer, " has completed processing.")
         else:
             print("No Buffer")
 
-    inFeatures = ["Lakes_Res_Buff", "Mosquito_Buff", "OSMP_Prop_Buff", "Wetlands_Reg_Buff"]
+    inFeatures = ["Lakes_Res_Buff.shp", "Mosquito_Buff.shp", "OSMP_Prop_Buff.shp", "Wetlands_Reg_Buff.shp"]
     intersect_save = input("Enter intersect description word:")
-    d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
-    intersectOutput = rf"{d_base}\{intersect_save}_Intersect"
-    arcpy.Intersect_analysis(inFeatures, intersectOutput, "ALL")
-    name_result = "hazard_address"
-    out_class = rf"{d_base}{name_result}"
-    target = rf"{d_base}Boulder_add"
-    arcpy.SpatialJoin_analysis(target, intersectOutput, out_class)
-    arcpy.SelectLayerByAttribute_management(out_class, "NEW_SELECTION")
-    my_cnt = arcpy.GetCount_management(out_class)
+    arcpy.Intersect_analysis(inFeatures, f"{intersect_save}_intersect.shp", "ALL")
+    arcpy.analysis.Erase("{intersect_save}_intersect.shp", 'avoid_points_Buff','spray_zone.shp')
+    name_result = "spray_address.shp"
+    target = 'Boulder_add.shp'
+    arcpy.SpatialJoin_analysis(target, 'spray_zone.shp', name_result)
+    arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
+    my_cnt = arcpy.GetCount_management(name_result)
     print(f"There are {my_cnt} selected features")
     mapthis(name_result)
 def buffer(gdb, shp):
@@ -58,7 +56,7 @@ def setup():
     logging.basicConfig(filename=f"{config_dict.get('proj_dir')}wnv.log", filemode="w", level=logging.DEBUG)
     return config_dict
 def etl():
-    SpatialEtl(config_dict)
+    GSheetsEtl(config_dict)
     #etl_instance = GSheetsEtl(config_dict)
     #etl_instance.process()
 

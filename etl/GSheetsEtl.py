@@ -8,7 +8,7 @@ from etl.SpatialEtl import SpatialEtl
 class GSheetsEtl(SpatialEtl):
     config_dict = None
     def __init__(self, config_dict):
-        super().__init__(config_dict)
+        super().__init__(self.config_dict)
 
     def extract(self):
         print("Extracting addresses from google form spreadsheet")
@@ -51,7 +51,7 @@ class GSheetsEtl(SpatialEtl):
 
         # Set the local variables
         in_table = rf"{self.config_dict.get('proj_dir')}\new_addresses.csv"
-        out_feature_class = "avoid_points"
+        out_feature_class = "avoid_points.shp"
         x_coords = "X"
         y_coords = "Y"
 
@@ -60,6 +60,7 @@ class GSheetsEtl(SpatialEtl):
 
         # Print the total rows
         print(arcpy.GetCount_management(out_feature_class))
+
 
     def process(self):
         self.extract()

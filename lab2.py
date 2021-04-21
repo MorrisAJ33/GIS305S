@@ -1,6 +1,5 @@
 import arcpy
 import yaml
-from etl.SpatialEtl import SpatialEtl
 from etl.GSheetsEtl import GSheetsEtl
 
 def main():
@@ -18,13 +17,11 @@ def main():
 
     inFeatures = ["Lakes_Res_Buff", "Mosquito_Buff", "OSMP_Prop_Buff", "Wetlands_Reg_Buff"]
     intersect_save = input("Enter intersect description word:")
-    d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
-    intersectOutput = rf"{d_base}\{intersect_save}_Intersect.shp"
+    intersectOutput = f"{intersect_save}_Intersect.shp"
     arcpy.Intersect_analysis(inFeatures, intersectOutput, "ALL")
-    name_result = "hazard_address"
-    out_class = rf"{d_base}{name_result}"
-    target = rf"{d_base}Boulder_add"
-    arcpy.SpatialJoin_analysis(target, intersectOutput, out_class)
+    out_class = "hazard_address.shp"
+    target = "Boulder_add"
+    arcpy.SpatialJoin_analysis(target, f'{intersect_save}_Intersect.shp', out_class)
     arcpy.SelectLayerByAttribute_management(out_class, "NEW_SELECTION")
     my_cnt = arcpy.GetCount_management(out_class)
     print(f"There are {my_cnt} selected features")
