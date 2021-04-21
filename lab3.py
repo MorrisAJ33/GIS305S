@@ -18,13 +18,14 @@ def main():
         else:
             print("No Buffer")
 
-    inFeatures = ["Lakes_Res_Buff.shp", "Mosquito_Buff.shp", "OSMP_Prop_Buff.shp", "Wetlands_Reg_Buff.shp"]
+    inFeatures = ["Lakes_Res_Buff", "Mosquito_Buff", "OSMP_Prop_Buff", "Wetlands_Reg_Buff"]
     intersect_save = input("Enter intersect description word:")
-    arcpy.Intersect_analysis(inFeatures, f"{intersect_save}_intersect.shp", "ALL")
-    arcpy.analysis.Erase("{intersect_save}_intersect.shp", 'avoid_points_Buff','spray_zone.shp')
-    name_result = "spray_address.shp"
-    target = 'Boulder_add.shp'
-    arcpy.SpatialJoin_analysis(target, 'spray_zone.shp', name_result)
+    int_out = f"{intersect_save}_intersect"
+    arcpy.Intersect_analysis(inFeatures, int_out, "ALL")
+    arcpy.analysis.Erase(int_out, 'avoid_points_Buff','spray_zone')
+    name_result = "spray_address"
+    target = 'Boulder_add'
+    arcpy.SpatialJoin_analysis(target, 'spray_zone', name_result)
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
     my_cnt = arcpy.GetCount_management(name_result)
     print(f"There are {my_cnt} selected features")
