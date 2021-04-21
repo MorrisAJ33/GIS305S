@@ -54,12 +54,16 @@ def mapthis(out_layer):
 def setup():
     with open('config/wnvoutbreak.yaml') as f:
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
-    logging.basicConfig(filename=f"{config_dict.get('proj_dir')}wnv.log", filemode="w", level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG,
+                            filename= "wnv.log",
+                            filemode='w',
+                            format='%(name)s - '
+                                '%(levelname)s - '
+                                '%(message)s')
     return config_dict
 def etl():
     GSheetsEtl(config_dict)
-    etl_instance = GSheetsEtl(config_dict)
-    etl_instance.process()
+
 
 if __name__ == '__main__':
     global config_dict
