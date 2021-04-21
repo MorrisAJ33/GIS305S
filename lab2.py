@@ -1,17 +1,16 @@
 import arcpy
 import yaml
-
+from etl.SpatialEtl import SpatialEtl
 from etl.GSheetsEtl import GSheetsEtl
-arcpy.env.workspace = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
-arcpy.env.overwriteOutput = True
 
 def main():
-    global config_dict
+    arcpy.env.workspace = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
+    arcpy.env.overwriteOutput = True
     find_lyr= arcpy.ListFeatureClasses()
     for lyr in find_lyr:
         print(lyr)
         if  lyr == "Lakes_Res" or lyr == "Mosquito" or lyr == "OSMP_Prop" or lyr == "Wetlands_Reg":
-            d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
+            d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb\\"
             output_layer = buffer(d_base, lyr)
             print(output_layer, " has completed processing.")
         else:
@@ -56,10 +55,12 @@ def setup():
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
     return config_dict
 def etl():
-    etl_instance = GSheetsEtl("https://foo_bar.com","c:users", "GSheets", "c:/users/my.gdb")
-    etl_instance.process()
+    SpatialEtl(config_dict)
+    #etl_instance = GSheetsEtl(config_dict)
+    #etl_instance.process()
 
 if __name__ == '__main__':
+    global config_dict
     config_dict = setup()
     print(config_dict)
     etl()
