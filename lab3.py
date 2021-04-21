@@ -5,6 +5,7 @@ from etl.GSheetsEtl import GSheetsEtl
 
 
 def main():
+
     logging.info('Starting West Nile Virus Simulation')
     arcpy.env.workspace = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
     arcpy.env.overwriteOutput = True
@@ -57,8 +58,8 @@ def setup():
     return config_dict
 def etl():
     GSheetsEtl(config_dict)
-    #etl_instance = GSheetsEtl(config_dict)
-    #etl_instance.process()
+    etl_instance = GSheetsEtl(config_dict)
+    etl_instance.process()
 
 if __name__ == '__main__':
     global config_dict
