@@ -1,14 +1,17 @@
 import arcpy
 import yaml
+
 from etl.GSheetsEtl import GSheetsEtl
 
+
 def main():
+
     arcpy.env.workspace = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
     arcpy.env.overwriteOutput = True
     find_lyr= arcpy.ListFeatureClasses()
     for lyr in find_lyr:
         print(lyr)
-        if  lyr == "Lakes_Res" or lyr == "Mosquito" or lyr == "OSMP_Prop" or lyr == "Wetlands_Reg":
+        if  lyr == "Lakes_Res" or lyr == "Mosquito" or lyr == "OSMP_Prop" or lyr == "Wetlands_Reg" or lyr == 'avoid_points':
             d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb\\"
             output_layer = buffer(d_base, lyr)
             print(output_layer, " has completed processing.")
@@ -17,13 +20,14 @@ def main():
 
     inFeatures = ["Lakes_Res_Buff", "Mosquito_Buff", "OSMP_Prop_Buff", "Wetlands_Reg_Buff"]
     intersect_save = input("Enter intersect description word:")
-    intersectOutput = f"{intersect_save}_Intersect.shp"
-    arcpy.Intersect_analysis(inFeatures, intersectOutput, "ALL")
-    out_class = "hazard_address.shp"
-    target = "Boulder_add"
-    arcpy.SpatialJoin_analysis(target, f'{intersect_save}_Intersect.shp', out_class)
-    arcpy.SelectLayerByAttribute_management(out_class, "NEW_SELECTION")
-    my_cnt = arcpy.GetCount_management(out_class)
+    int_out = f"{intersect_save}_intersect"
+    arcpy.Intersect_analysis(inFeatures, int_out, "ALL")
+    arcpy.analysis.Erase(int_out, 'avoid_points_Buff','spray_zone')
+    name_result = "spray_address"
+    target = 'Boulder_add'
+    arcpy.SpatialJoin_analysis(target, 'spray_zone', name_result)
+    arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
+    my_cnt = arcpy.GetCount_management(name_result)
     print(f"There are {my_cnt} selected features")
     mapthis(name_result)
 def buffer(gdb, shp):
@@ -50,9 +54,10 @@ def mapthis(out_layer):
 def setup():
     with open('config/wnvoutbreak.yaml') as f:
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
+    logging.basicConfig(filename=f"{config_dict.get('proj_dir')}wnv.log", filemode="w", level=logging.DEBUG)
     return config_dict
 def etl():
-    SpatialEtl(config_dict)
+    GSheetsEtl(config_dict)
     #etl_instance = GSheetsEtl(config_dict)
     #etl_instance.process()
 
