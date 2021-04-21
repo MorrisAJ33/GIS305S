@@ -1,11 +1,9 @@
 import arcpy
 import yaml
-
 from etl.GSheetsEtl import GSheetsEtl
 
 
 def main():
-
     arcpy.env.workspace = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
     arcpy.env.overwriteOutput = True
     find_lyr= arcpy.ListFeatureClasses()
@@ -47,9 +45,8 @@ def buffer(gdb, shp):
 def mapthis(out_layer):
     aprx = arcpy.mp.ArcGISProject(fr"{config_dict.get('proj_dir')}\WestNileOutbreak.aprx")
     map_disp = aprx.listMaps()[0]
-    global d_base
-    out = rf"{d_base}\{out_layer}"
-    map_disp.addDataFromPath(out)
+    dbase= fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
+    map_disp.addDataFromPath(rf"{dbase}\{out_layer}")
     aprx.save()
 def setup():
     with open('config/wnvoutbreak.yaml') as f:
