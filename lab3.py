@@ -1,9 +1,11 @@
 import arcpy
 import yaml
+import logging
 from etl.SpatialEtl import SpatialEtl
 from etl.GSheetsEtl import GSheetsEtl
 
 def main():
+    logging.info('Starting West Nile Virus Simulation')
     arcpy.env.workspace = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
     arcpy.env.overwriteOutput = True
     find_lyr= arcpy.ListFeatureClasses()
@@ -19,7 +21,7 @@ def main():
     inFeatures = ["Lakes_Res_Buff", "Mosquito_Buff", "OSMP_Prop_Buff", "Wetlands_Reg_Buff"]
     intersect_save = input("Enter intersect description word:")
     d_base = fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
-    intersectOutput = rf"{d_base}\{intersect_save}_Intersect.shp"
+    intersectOutput = rf"{d_base}\{intersect_save}_Intersect"
     arcpy.Intersect_analysis(inFeatures, intersectOutput, "ALL")
     name_result = "hazard_address"
     out_class = rf"{d_base}{name_result}"
@@ -53,6 +55,7 @@ def mapthis(out_layer):
 def setup():
     with open('config/wnvoutbreak.yaml') as f:
         config_dict = yaml.load(f, Loader=yaml.FullLoader)
+    logging.basicConfig(filename=f"{config_dict.get('proj_dir')}wnv.log", filemode="w", level=logging.DEBUG)
     return config_dict
 def etl():
     SpatialEtl(config_dict)
