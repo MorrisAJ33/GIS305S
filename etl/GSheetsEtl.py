@@ -1,6 +1,7 @@
 import arcpy
 import requests
 import csv
+import urllib
 
 from etl.SpatialEtl import SpatialEtl
 
@@ -13,9 +14,7 @@ class GSheetsEtl(SpatialEtl):
     def extract(self):
         print("Extracting addresses from google form spreadsheet")
         # file = urllib.request.urlopen("https://docs.google.com/spreadsheets/d/e/2PACX-1vTaJ_1xRhGQAOSITkgn_C1wfPSnPX0BA37XuftlXVfVrpjfj4J3BHPu1soGeUtNt3XjLI1G_HT2Fy69/pub?output=csv")
-
-        r = requests.get(
-            self.config_dict.get('remote_url'))
+        r = requests.get(self.config_dict.get('remote_url'))
         r.encoding = "utf-8"
         data = r.text
         with open(rf"{self.config_dict.get('proj_dir')}\addresses.csv", "w") as output_file:
