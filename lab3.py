@@ -32,7 +32,7 @@ def main():
     name_result = "spray_address"
     target = 'Boulder_add'
     logging.debug('Starting  Spatial Join')
-    arcpy.SpatialJoin_analysis(target, 'spray_zone', name_result, "", "", "", "INTERSECT")
+    arcpy.SpatialJoin_analysis(target, 'spray_zone', name_result)
     logging.debug('End Spatial Join')
     logging.debug('Starting  Select')
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
@@ -81,7 +81,7 @@ def setup():
 def etl():
     GSheetsEtl(config_dict)
     etl_instance = GSheetsEtl(config_dict)
-    #etl_instance.process()
+    etl_instance.process()
 
 if __name__ == '__main__':
     global config_dict

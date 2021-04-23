@@ -5,8 +5,8 @@ class SpatialEtl:
         self.config_dict = config_dict
 
     def extract(self):
-        print(f"Extracting data from {self.config_dict.get('remote_url')}"
-            f"to {self.config_dict.get('proj_dir')}")
+        print(f"Extracting data from {self.config_dict.get('remote_url')}")
+        print(f"to {self.config_dict.get('proj_dir')}")
     def transform(self):
         print(f"Transforming {self.config_dict}")
 
