@@ -32,7 +32,7 @@ def main():
     name_result = "spray_address"
     target = 'Boulder_add'
     logging.debug('Starting  Spatial Join')
-    arcpy.SpatialJoin_analysis(target, 'spray_zone', name_result)
+    arcpy.SelectLayerByLocation_management(target, 'spray_zone', name_result)
     logging.debug('End Spatial Join')
     logging.debug('Starting  Select')
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
