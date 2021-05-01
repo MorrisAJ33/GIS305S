@@ -21,9 +21,10 @@ def main():
     int_out = f"{intersect_save}_intersect"
     arcpy.Intersect_analysis(inFeatures, int_out, "ALL")
     arcpy.analysis.Erase(int_out, 'avoid_points_Buff','spray_zone')
+    address_all = 'Boulder_add'
+    arcpy.SelectLayerByLocation_management(address_all, "INTERSECT", 'spray_zone')
     name_result = "spray_address"
-    target = 'Boulder_add'
-    arcpy.SpatialJoin_analysis(target, 'spray_zone', name_result)
+    arcpy.CopyFeatures_management(address_all, name_result)
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
     my_cnt = arcpy.GetCount_management(name_result)
     print(f"There are {my_cnt} selected features")
