@@ -1,18 +1,31 @@
-import yaml
+
 import arcpy
 import requests
 import csv
-import json
-#from etl folder use file spatial etl output
+
+# from etl folder use file spatial etl output
 from etl.SpatialEtl import SpatialEtl
 
+
 class GSheetsEtl(SpatialEtl):
+    """
+    Gsheets Etl is an extract, transform and load function. Data in .csv
+    format is retrieved from google form through URL. Data must have street
+    address.
+
+    Parameters:
+        config_dict (dictionary): A dictionary containing a remote_URL key to the
+        google spreadsheet and web GeoCoding service.
+    """
+    # dictionary passed in to create instance
     config_dict = None
 
+# from etl folder use file spatial etl output
     def __init__(self, config_dict):
         super().__init__(config_dict)
 
     def extract(self):
+        """Extracting data from Google spreadsheet to write to local file"""
         print("Extracting addresses from google form spreadsheet")
 
         r = requests.get(self.config_dict.get('remote_url'))
@@ -32,11 +45,11 @@ class GSheetsEtl(SpatialEtl):
                 address = row["Street Address"] + " Boulder CO"
                 print(address)
                 urladdress= address.replace(" ","+")
-                geo_concat = rf"{self.config_dict.get('geocoder_prefix_url')}{urladdress}{self.config_dict.get('geocoder_suffix_url')} "
+                geo_concat = rf"{self.config_dict.get('geocoder_prefix_url')}{urladdress}{self.config_dict.get('geocoder_suffix_url')}"
                 print(geo_concat)
-                r = requests.get(geo_concat, headers={'accept': 'application/json'})
+                r = requests.get(geo_concat)
                 r.encoding = "utf-8"
-                print(r.text)
+                #print(r.text)
 
                 resp_dict = r.json()
                 x = resp_dict['result']['addressMatches'][0]['coordinates']['x']
@@ -49,7 +62,7 @@ class GSheetsEtl(SpatialEtl):
         # Description: Creates a point feature class from input table
 
         # Set environment settings
-        arcpy.env.workspace = rf"{self.config_dict.get('proj_dir')}WestNileOutbreak.gdb\\"
+        arcpy.env.workspace= rf"{self.config_dict.get('proj_dir')}\WestNileOutbreak.gdb\\"
         arcpy.env.overwriteOutput = True
 
         # Set the local variables

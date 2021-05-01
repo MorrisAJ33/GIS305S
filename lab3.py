@@ -27,13 +27,16 @@ def main():
     arcpy.Intersect_analysis(inFeatures, int_out, "ALL")
     logging.debug('End Intersect')
     logging.debug('Starting  Erase')
-    arcpy.analysis.Erase(int_out, 'avoid_points_Buff','spray_zone')
+    arcpy.Erase_analysis(int_out, 'avoid_points_Buff', 'spray_zone')
     logging.debug('End Erase')
-    name_result = "spray_address"
-    target = 'Boulder_add'
+    address_all = 'Boulder_add'
     logging.debug('Starting  Spatial Join')
-    arcpy.SelectLayerByLocation_management(target, 'spray_zone', name_result)
+    arcpy.SelectLayerByLocation_management(address_all, "INTERSECT", 'spray_zone')
     logging.debug('End Spatial Join')
+    name_result = "spray_address"
+    logging.debug('Starting copy features')
+    arcpy.CopyFeatures_management(address_all, name_result)
+    logging.debug('End copy features')
     logging.debug('Starting  Select')
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
     logging.debug('End  Select')
@@ -87,5 +90,5 @@ if __name__ == '__main__':
     global config_dict
     config_dict = setup()
     print(config_dict)
-    etl()
+    #etl()
     main()
