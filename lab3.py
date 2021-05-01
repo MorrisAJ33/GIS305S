@@ -30,13 +30,8 @@ def main():
     arcpy.Erase_analysis(int_out, 'avoid_points_Buff', 'spray_zone')
     logging.debug('End Erase')
     address_all = 'Boulder_add'
-    logging.debug('Starting  Spatial Join')
-    arcpy.SelectLayerByLocation_management(address_all, "INTERSECT", 'spray_zone')
-    logging.debug('End Spatial Join')
     name_result = "spray_address"
-    logging.debug('Starting copy features')
-    arcpy.CopyFeatures_management(address_all, name_result)
-    logging.debug('End copy features')
+    arcpy.Intersect_analysis([address_all, int_out], name_result, "ALL")
     logging.debug('Starting  Select')
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
     logging.debug('End  Select')
