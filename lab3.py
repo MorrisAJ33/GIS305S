@@ -30,14 +30,19 @@ def main():
     arcpy.Erase_analysis(int_out, 'avoid_points_Buff', 'spray_zone')
     logging.debug('End Erase')
     address_all = 'Boulder_add'
-    name_result = "spray_address"
+    name_result = "target_address"
     arcpy.Intersect_analysis([address_all, int_out], name_result, "ALL")
     logging.debug('Starting  Select')
     arcpy.SelectLayerByAttribute_management(name_result, "NEW_SELECTION")
     logging.debug('End  Select')
     my_cnt = arcpy.GetCount_management(name_result)
     print(f"There are {my_cnt} selected features")
-    mapthis(name_result)
+    arcpy.SelectLayerByAttribute_management(name_result, "CLEAR_SELECTION")
+    proj_lyr= 'address_CO_N'
+    spatialref = 2231
+    arcpy.Project_management(name_result, proj_lyr, spatialref)
+    arcpy.Project_management('spray_zone', 'spray_CO_N', spatialref)
+    mapthis(proj_lyr, 'spray_CO_N')
 def buffer(gdb, shp):
     import arcpy
     units = " Feet"
@@ -52,10 +57,19 @@ def buffer(gdb, shp):
     buff_lyr = rf"{gdb}{shp}"
     arcpy.Buffer_analysis(buff_lyr, output_layer, dist2, "FULL", "ROUND", "ALL")
     return output_layer
-def mapthis(out_layer):
+def mapthis(out_layer, layer2):
     aprx = arcpy.mp.ArcGISProject(fr"{config_dict.get('proj_dir')}\WestNileOutbreak.aprx")
     map_disp = aprx.listMaps()[0]
     dbase= fr"{config_dict.get('proj_dir')}\WestNileOutbreak.gdb"
+    co_n = arcpy.SpatialReference(2231)
+    map_disp.spatialReference = co_n
+    lyr = map_disp.listLayers(layer2)[0]
+    sym = lyr.symbology
+    sym.renderer.symbol.color = {'RGB': [255, 0, 0, 100]}
+    sym.renderer.symbol.outlineColor = {'RGB': [100, 100, 100, 100]}
+    lyr.symbology = sym
+    lyr.transparency = 50
+    aprx.save()
     map_disp.addDataFromPath(rf"{dbase}\{out_layer}")
     aprx.save()
     lyt = aprx.listLayouts()[0]

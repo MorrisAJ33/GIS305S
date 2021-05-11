@@ -26,6 +26,7 @@ class GSheetsEtl(SpatialEtl):
 
     def extract(self):
         """Extracting data from Google spreadsheet to write to local file"""
+
         print("Extracting addresses from google form spreadsheet")
 
         r = requests.get(self.config_dict.get('remote_url'))
@@ -35,30 +36,40 @@ class GSheetsEtl(SpatialEtl):
             output_file.write(data)
 
     def transform(self):
-        print("Add City, State")
+        """
+        Transform takes csv inputs address into geocoder, and records coordinates in new .csv
+        """
+        try:
+            print("Add City, State")
 
-        transformed_file = open(rf"{self.config_dict.get('proj_dir')}\new_addresses.csv", "w")
-        transformed_file.write("X,Y,Type\n")
-        with open(rf"{self.config_dict.get('proj_dir')}\addresses.csv", "r") as partial_file:
-            csv_dict = csv.DictReader(partial_file, delimiter=',')
-            for row in csv_dict:
-                address = row["Street Address"] + " Boulder CO"
-                print(address)
-                urladdress= address.replace(" ","+")
-                geo_concat = rf"{self.config_dict.get('geocoder_prefix_url')}{urladdress}{self.config_dict.get('geocoder_suffix_url')}"
-                print(geo_concat)
-                r = requests.get(geo_concat)
-                r.encoding = "utf-8"
-                #print(r.text)
+            transformed_file = open(rf"{self.config_dict.get('proj_dir')}\new_addresses.csv", "w")
+            transformed_file.write("X,Y,Type\n")
+            with open(rf"{self.config_dict.get('proj_dir')}\addresses.csv", "r") as partial_file:
+                csv_dict = csv.DictReader(partial_file, delimiter=',')
+                for row in csv_dict:
+                    address = row["Street Address"] + " Boulder CO"
+                    print(address)
+                    urladdress= address.replace(" ","+")
+                    geo_concat = rf"{self.config_dict.get('geocoder_prefix_url')}{urladdress}{self.config_dict.get('geocoder_suffix_url')}"
+                    print(geo_concat)
+                    r = requests.get(geo_concat)
+                    r.encoding = "utf-8"
+                    #print(r.text)
 
-                resp_dict = r.json()
-                x = resp_dict['result']['addressMatches'][0]['coordinates']['x']
-                y = resp_dict['result']['addressMatches'][0]['coordinates']['y']
-                transformed_file.write(f"{x},{y},Residential\n")
+                    resp_dict = r.json()
+                    x = resp_dict['result']['addressMatches'][0]['coordinates']['x']
+                    y = resp_dict['result']['addressMatches'][0]['coordinates']['y']
+                    transformed_file.write(f"{x},{y},Residential\n")
+            transformed_file.close()
 
-        transformed_file.close()
+        except Exception as e:
+            print(f"Error in extract, transform and load {e}")
+
 
     def load(self):
+        """
+        New Point layer is created from geocoded csv
+        """
         # Description: Creates a point feature class from input table
 
         # Set environment settings
